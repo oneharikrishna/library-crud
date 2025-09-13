@@ -19,7 +19,7 @@ async fn get_member_by_id(pool: web::Data<MySqlPool>, id: web::Path<i32>) -> imp
     let member_id = id.into_inner();
     let result = sqlx::query_as::<_,Member>("SELECT * FROM members WHERE member_id = ?")
         .bind(member_id)
-        .fetch_all(pool.get_ref())
+        .fetch_one(pool.get_ref())
         .await;
     match result {
         Ok(res) => HttpResponse::Ok().json(res),
@@ -101,7 +101,7 @@ async fn delete_member_by_id(pool: web::Data<MySqlPool>, id: web::Path<i32>) -> 
         .execute(pool.get_ref())
         .await;
     match result {
-        Ok(res) => HttpResponse::Ok().body(format!("Member {} removed from members",member_id)),
+        Ok(_res) => HttpResponse::Ok().body(format!("Member {} removed from members",member_id)),
         Err(err) => HttpResponse::InternalServerError().body(err.to_string())
     }
 }
