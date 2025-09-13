@@ -21,7 +21,7 @@ async fn get_book_by_id(pool: web::Data<MySqlPool>, id: web::Path<i32>) -> impl 
     let book_id = id.into_inner();
     let book = sqlx::query_as::<_,Book>("SELECT * FROM books WHERE book_id = ?")
         .bind(book_id)
-        .fetch_all(pool.get_ref())
+        .fetch_one(pool.get_ref())
         .await;
     match book {
         Ok(result) => HttpResponse::Ok().json(result),
@@ -98,7 +98,7 @@ async fn update_book(pool: web::Data<MySqlPool>, update_data: web::Json<PutReque
     let result = q.execute(pool.get_ref()).await;
 
     match result {
-        Ok(result) => HttpResponse::Ok().body(format!("book {} is updated",book_id)),
+        Ok(_result) => HttpResponse::Ok().body(format!("book {} is updated",book_id)),
         Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
     }
 
@@ -112,7 +112,7 @@ async fn delete_book_by_id(pool: web::Data<MySqlPool>, id: web::Path<i32>) -> im
         .execute(pool.get_ref())
         .await;
     match result {
-        Ok(res) => HttpResponse::Ok().body(format!("book {} removed from library",book_id)),
+        Ok(_res) => HttpResponse::Ok().body(format!("book {} removed from library",book_id)),
         Err(err) => HttpResponse::InternalServerError().body(err.to_string())
     }
 }
